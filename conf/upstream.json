@@ -1,0 +1,17 @@
+{
+  "default": {
+    "Upstream": [
+      {}
+    ]
+  },
+  "gotochina": {
+    "Upstream": [
+      {"Addr": "106.48.13.104:4403"}
+    ]
+  },
+  "bjoffice": {
+    "Upstream": [
+      {"Addr": "10.6.0.1:1081"}
+    ]
+  }
+}
