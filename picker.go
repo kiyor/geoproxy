@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Mon 15 May 2017 07:35:18 AM UTC
+* Last Modified : Mon 15 May 2017 05:32:06 PM UTC
 
 * Created By : Kiyor
 
@@ -16,11 +16,12 @@ package main
 
 import (
 	"context"
+	"github.com/kiyor/go-socks5"
 	"github.com/kiyor/subnettool"
 	"github.com/oschwald/geoip2-golang"
 	"log"
 	"net"
-	"strings"
+	// 	"strings"
 )
 
 var db *geoip2.Reader
@@ -36,8 +37,10 @@ func init() {
 type Picker struct {
 }
 
-func (p *Picker) Pick(fqdn, dest string) func(ctx context.Context, network, addr string) (net.Conn, error) {
-	dest = strings.Split(dest, ":")[0]
+func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr string) (net.Conn, error) {
+	fqdn := r.DestAddr.FQDN
+	dest := r.RealDestAddr().IP.String()
+	// 	dest = strings.Split(dest, ":")[0]
 
 	if c, ok := myGeoConfig.MIP[dest]; ok {
 		log.Println("found IP match", fqdn, dest, c)
@@ -54,13 +57,13 @@ func (p *Picker) Pick(fqdn, dest string) func(ctx context.Context, network, addr
 		return c.Upstream[0].dial
 	}
 	country, _ := db.Country(net.ParseIP(dest))
-	log.Println(dest, country.Country.IsoCode)
+	// 	log.Println(dest, country.Country.IsoCode)
 	if c, ok := myGeoConfig.MGEO[country.Country.IsoCode]; ok {
-		log.Println("found GEO match", fqdn, dest, c)
+		log.Println("found GEO match", fqdn, dest, country.Country.IsoCode, c)
 		return c.Upstream[0].dial
 	}
 
-	log.Println("not found use default", fqdn, dest)
+	log.Println("not found GEO", country.Country.IsoCode, "use default", fqdn, dest)
 	return func(ctx context.Context, net_, addr string) (net.Conn, error) {
 		return net.Dial(net_, addr)
 	}

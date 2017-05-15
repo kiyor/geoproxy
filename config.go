@@ -6,7 +6,7 @@
 
 * Creation Date : 05-14-2017
 
-* Last Modified : Mon 15 May 2017 07:32:53 AM UTC
+* Last Modified : Mon 15 May 2017 05:34:05 PM UTC
 
 * Created By : Kiyor
 
@@ -141,6 +141,7 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 			Geo.MGEO[k] = up
 		}
 	}
+	log.Println("config load success")
 
 	return Geo, nil
 }

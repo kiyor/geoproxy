@@ -5,5 +5,7 @@
   "www.google.com": "default",
   "104.173.119.36": "gotochina",
   "173.255.213.0/24": "gotochina",
-  "220.0.0.0/8": "gotochina"
+  "222.0.0.0/8": "gotochina",
+  "223.0.0.0/8": "gotochina",
+  "115.0.0.0/8": "gotochina"
 }
