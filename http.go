@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Mon May 15 19:47:08 2017
+* Last Modified : Tue 16 May 2017 05:57:17 AM UTC
 
 * Created By : Kiyor
 
@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"text/template"
@@ -40,11 +41,7 @@ const TPL = `var FindProxyForURL = function(init, profiles) {
 });`
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	s := r.URL.Query().Get("s")
-	if len(s) == 0 {
-		fmt.Fprintf(w, "ok")
-		return
-	}
+	s := strings.Split(r.Host, ":")[0]
 	s += ":" + strings.Split(*fListen, ":")[1]
 	t, err := template.New("pac").Parse(TPL)
 	if err != nil {
@@ -52,6 +49,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t.Execute(w, s)
+	log.Println(r.RemoteAddr, r.Method, r.URL.String())
 }
 
 func runHttp() {
