@@ -2,10 +2,17 @@
   "default": "default",
   "CN": "gotochina",
   "US": "default",
+  "SG": "default",
+  "106.48.13.0/24": "default",
+  "baidu.com": "gotochina",
   "www.google.com": "default",
+  "*.hope.chinacache.com": "bjoffice",
+  "*.chinacache.com": "laoffice",
   "104.173.119.36": "gotochina",
   "173.255.213.0/24": "gotochina",
+  "172.16.0.0/16": "bjoffice",
   "222.0.0.0/8": "gotochina",
   "223.0.0.0/8": "gotochina",
+  "223.202.0.0/16": "bjoffice",
   "115.0.0.0/8": "gotochina"
 }

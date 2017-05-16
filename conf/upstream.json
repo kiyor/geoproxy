@@ -1,12 +1,19 @@
 {
   "default": {
-    "Upstream": [
-      {}
-    ]
+    "Upstream": []
   },
   "gotochina": {
     "Upstream": [
-      {"Addr": "106.48.13.104:4403"}
+      {
+        "Addr": "106.48.13.104:4402",
+        "User": "kiyor",
+        "Password": "kiyor"
+      }
+    ]
+  },
+  "laoffice": {
+    "Upstream": [
+      {"Addr": "10.6.0.115:1080"}
     ]
   },
   "bjoffice": {

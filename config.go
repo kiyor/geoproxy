@@ -6,7 +6,7 @@
 
 * Creation Date : 05-14-2017
 
-* Last Modified : Mon 15 May 2017 05:34:05 PM UTC
+* Last Modified : Mon May 15 17:26:40 2017
 
 * Created By : Kiyor
 
@@ -15,23 +15,23 @@ _._._._._._._._._._._._._._._._._._._._._.*/
 package main
 
 import (
-	"context"
+	// 	"context"
 	"encoding/json"
 	"github.com/kiyor/golib"
-	"golang.org/x/net/proxy"
+	// 	"golang.org/x/net/proxy"
 	"io/ioutil"
 	"log"
 	"net"
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
+	// 	"time"
 )
 
 var myGeoConfig *GeoConfig
 
 func init() {
-	Reload("./conf")
+	Reload(*fConf)
 }
 
 // default will go to ""{}
@@ -42,18 +42,26 @@ type UpstreamConfig struct {
 }
 
 type Up struct {
-	Addr string
-	dial func(ctx context.Context, network, addr string) (net.Conn, error)
+	Addr     string
+	User     string
+	Password string
 }
 
 type geoConfig map[string]string
+
+type CacheKey struct {
+	IP   string
+	FQDN string
+}
 
 type GeoConfig struct {
 	Default *UpstreamConfig
 	MIP     map[string]*UpstreamConfig
 	MCIDR   map[string]*UpstreamConfig
 	MFQDN   map[string]*UpstreamConfig
+	MREFQDN map[string]*UpstreamConfig
 	MGEO    map[string]*UpstreamConfig
+	Cache   map[CacheKey]*UpstreamConfig
 	*sync.RWMutex
 }
 
@@ -78,29 +86,34 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 		return nil, err
 	}
 
-	for _, ups := range upstream {
-		for _, up := range ups.Upstream {
-			if len(up.Addr) == 0 {
-				up.dial = func(ctx context.Context, net_, addr string) (net.Conn, error) {
-					return net.Dial(net_, addr)
+	/*
+		for k, ups := range upstream {
+			for _, up := range ups.Upstream {
+				if len(up.Addr) == 0 {
+					up.dial = func(ctx context.Context, net_, addr string) (net.Conn, error) {
+						return net.Dial(net_, addr)
+					}
+					continue
 				}
-				continue
-			}
-			// TODO: add support for more config
-			dialer, err := proxy.SOCKS5("tcp", up.Addr,
-				nil,
-				&net.Dialer{
-					KeepAlive: 30 * time.Second,
-				},
-			)
-			if err != nil {
-				log.Println(err.Error())
-			}
-			up.dial = func(ctx context.Context, net_, addr string) (net.Conn, error) {
-				return dialer.Dial(net_, addr)
+				// TODO: add support for more config
+				log.Println(up.Addr)
+				dialer, err := proxy.SOCKS5("tcp", up.Addr,
+					nil,
+					&net.Dialer{
+						KeepAlive: 30 * time.Second,
+					},
+				)
+				if err != nil {
+					log.Println(err.Error())
+				}
+				up.dial = func(ctx context.Context, net_, addr string) (net.Conn, error) {
+					log.Println("dial", addr)
+					return dialer.Dial(net_, addr)
+				}
+				log.Println(k, up.dial)
 			}
 		}
-	}
+	*/
 
 	geo_f := filepath.Join(dir, "geo.json")
 	b, err = ioutil.ReadFile(geo_f)
@@ -117,7 +130,9 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 		MIP:     make(map[string]*UpstreamConfig),
 		MCIDR:   make(map[string]*UpstreamConfig),
 		MFQDN:   make(map[string]*UpstreamConfig),
+		MREFQDN: make(map[string]*UpstreamConfig),
 		MGEO:    make(map[string]*UpstreamConfig),
+		Cache:   make(map[CacheKey]*UpstreamConfig),
 		RWMutex: new(sync.RWMutex),
 	}
 	for k, v := range geo {
@@ -136,7 +151,11 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 		} else if _, _, err := net.ParseCIDR(k); err == nil {
 			Geo.MCIDR[k] = up
 		} else if strings.Contains(k, ".") {
-			Geo.MFQDN[k] = up
+			if !strings.Contains(k, "*") {
+				Geo.MFQDN[k] = up
+			} else {
+				Geo.MREFQDN[k] = up
+			}
 		} else {
 			Geo.MGEO[k] = up
 		}
