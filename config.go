@@ -6,7 +6,7 @@
 
 * Creation Date : 05-14-2017
 
-* Last Modified : Mon May 15 17:26:40 2017
+* Last Modified : Mon May 15 17:55:51 2017
 
 * Created By : Kiyor
 
@@ -18,7 +18,7 @@ import (
 	// 	"context"
 	"encoding/json"
 	"github.com/kiyor/golib"
-	// 	"golang.org/x/net/proxy"
+	"golang.org/x/net/proxy"
 	"io/ioutil"
 	"log"
 	"net"
@@ -38,13 +38,14 @@ func init() {
 type Upstream map[string]*UpstreamConfig
 
 type UpstreamConfig struct {
-	Upstream []Up
+	Upstream []*Up
 }
 
 type Up struct {
 	Addr     string
 	User     string
 	Password string
+	auth     *proxy.Auth
 }
 
 type geoConfig map[string]string
@@ -84,6 +85,17 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 	err = golib.JsonUnmarshal(b, &upstream)
 	if err != nil {
 		return nil, err
+	}
+
+	for k, v := range upstream {
+		for _, u := range v.Upstream {
+			if len(u.User) > 0 && len(u.Password) > 0 {
+				u.auth = &proxy.Auth{u.User, u.Password}
+			}
+		}
+		if len(v.Upstream) == 0 {
+			upstream[k].Upstream = append(upstream[k].Upstream, &Up{"", "", "", nil})
+		}
 	}
 
 	/*

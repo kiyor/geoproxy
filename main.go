@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Mon May 15 15:31:06 2017
+* Last Modified : Mon May 15 19:38:17 2017
 
 * Created By : Kiyor
 
@@ -42,6 +42,8 @@ func main() {
 			Reload(*fConf)
 		}
 	}()
+
+	go runHttp()
 
 	conf := &socks5.Config{
 		Picker: new(Picker),
