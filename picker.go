@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Mon May 15 20:09:35 2017
+* Last Modified : Tue 16 May 2017 08:03:21 AM UTC
 
 * Created By : Kiyor
 
@@ -70,12 +70,13 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	// 	}
 	found := color.Sprint("@{g}HIT@{|}")
 	notFound := color.Sprint("@{r}MISS@{|}")
+	from := r.RemoteAddr.IP.String()
 
 	myGeoConfig.RLock()
 	if c, ok := myGeoConfig.Cache[CacheKey{fqdn, dest}]; ok {
 		myGeoConfig.RUnlock()
 		u := c.Upstream[0]
-		log.Println(found, "Cache match", fqdn, dest, u)
+		log.Println(found, "Cache match", from, fqdn, dest, u)
 		return proxyDialer(u.Addr, u.auth)
 	}
 	myGeoConfig.RUnlock()
@@ -86,7 +87,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 
-		log.Println(found, "IP match", fqdn, dest, u)
+		log.Println(found, "IP match", from, fqdn, dest, u)
 		return proxyDialer(u.Addr, u.auth)
 	}
 	for k, c := range myGeoConfig.MCIDR {
@@ -95,7 +96,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 			myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
 			myGeoConfig.Unlock()
 			u := c.Upstream[0]
-			log.Println(found, "CIDR match", fqdn, dest, u)
+			log.Println(found, "CIDR match", from, fqdn, dest, u)
 			return proxyDialer(u.Addr, u.auth)
 		}
 	}
@@ -104,7 +105,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
-		log.Println(found, "FQDN match", fqdn, dest, u)
+		log.Println(found, "FQDN match", from, fqdn, dest, u)
 		return proxyDialer(u.Addr, u.auth)
 	}
 	for k, c := range myGeoConfig.MREFQDN {
@@ -113,7 +114,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 			myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
 			myGeoConfig.Unlock()
 			u := c.Upstream[0]
-			log.Println(found, "FQDN match", fqdn, dest, u)
+			log.Println(found, "FQDN match", from, fqdn, dest, u)
 			return proxyDialer(u.Addr, u.auth)
 		}
 	}
@@ -129,11 +130,11 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
-		log.Println(found, "GEO match", fqdn, dest, code, u)
+		log.Println(found, "GEO match", from, fqdn, dest, code, u)
 		return proxyDialer(u.Addr, u.auth)
 	}
 
-	log.Println(notFound, "GEO", code, "use default", fqdn, dest)
+	log.Println(notFound, "GEO", code, "use default", from, fqdn, dest)
 	myGeoConfig.Lock()
 	myGeoConfig.Cache[CacheKey{fqdn, dest}] = myGeoConfig.Default
 	myGeoConfig.Unlock()

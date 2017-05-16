@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Tue 16 May 2017 05:57:17 AM UTC
+* Last Modified : Tue 16 May 2017 07:52:03 AM UTC
 
 * Created By : Kiyor
 
@@ -36,7 +36,8 @@ const TPL = `var FindProxyForURL = function(init, profiles) {
     "+geoproxy": function(url, host, scheme) {
         "use strict";
         if (/^127\.0\.0\.1$/.test(host) || /^::1$/.test(host) || /^localhost$/.test(host)) return "DIRECT";
-        return "SOCKS5 {{.}}; SOCKS {{.}}";
+        if (scheme !== "http" && scheme !== "https") return "DIRECT";
+        return "SOCKS5 {{.}}";
     }
 });`
 
