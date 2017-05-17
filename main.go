@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Mon May 15 19:38:17 2017
+* Last Modified : Tue May 16 10:46:45 2017
 
 * Created By : Kiyor
 
@@ -31,7 +31,7 @@ var (
 
 func main() {
 	flag.Parse()
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGHUP)
