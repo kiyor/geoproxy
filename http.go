@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Tue 16 May 2017 07:52:03 AM UTC
+* Last Modified : Wed 17 May 2017 06:14:49 AM UTC
 
 * Created By : Kiyor
 
@@ -44,11 +44,13 @@ const TPL = `var FindProxyForURL = function(init, profiles) {
 func handler(w http.ResponseWriter, r *http.Request) {
 	s := strings.Split(r.Host, ":")[0]
 	s += ":" + strings.Split(*fListen, ":")[1]
-	t, err := template.New("pac").Parse(TPL)
+	// 	t, err := template.New("pac").Parse(TPL)
+	t, err := template.ParseFiles("./pac.tpl")
 	if err != nil {
 		fmt.Fprintf(w, "ok")
 		return
 	}
+	w.Header().Add("Cache-Control", "max-age=300")
 	t.Execute(w, s)
 	log.Println(r.RemoteAddr, r.Method, r.URL.String())
 }
