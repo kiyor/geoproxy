@@ -6,7 +6,7 @@
 
 * Creation Date : 05-14-2017
 
-* Last Modified : Mon May 15 17:55:51 2017
+* Last Modified : Sun May 21 02:24:26 2017
 
 * Created By : Kiyor
 
@@ -31,7 +31,10 @@ import (
 var myGeoConfig *GeoConfig
 
 func init() {
-	Reload(*fConf)
+	err := Reload(*fConf)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // default will go to ""{}
