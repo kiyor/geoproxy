@@ -6,7 +6,7 @@
 
 * Creation Date : 05-14-2017
 
-* Last Modified : Sun May 21 02:24:26 2017
+* Last Modified : Sun May 21 02:50:00 2017
 
 * Created By : Kiyor
 
@@ -29,13 +29,6 @@ import (
 )
 
 var myGeoConfig *GeoConfig
-
-func init() {
-	err := Reload(*fConf)
-	if err != nil {
-		panic(err)
-	}
-}
 
 // default will go to ""{}
 type Upstream map[string]*UpstreamConfig
@@ -65,7 +58,7 @@ type GeoConfig struct {
 	MFQDN   map[string]*UpstreamConfig
 	MREFQDN map[string]*UpstreamConfig
 	MGEO    map[string]*UpstreamConfig
-	Cache   map[CacheKey]*UpstreamConfig
+	cache   map[CacheKey]*UpstreamConfig
 	*sync.RWMutex
 }
 
@@ -147,7 +140,7 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 		MFQDN:   make(map[string]*UpstreamConfig),
 		MREFQDN: make(map[string]*UpstreamConfig),
 		MGEO:    make(map[string]*UpstreamConfig),
-		Cache:   make(map[CacheKey]*UpstreamConfig),
+		cache:   make(map[CacheKey]*UpstreamConfig),
 		RWMutex: new(sync.RWMutex),
 	}
 	for k, v := range geo {
@@ -175,7 +168,7 @@ func LoadConfig(dir string) (*GeoConfig, error) {
 			Geo.MGEO[k] = up
 		}
 	}
-	log.Println("config load success")
+	log.Println("config load success\n", Json(Geo))
 
 	return Geo, nil
 }

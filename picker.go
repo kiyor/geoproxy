@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Tue May 16 11:31:48 2017
+* Last Modified : Sun May 21 02:47:41 2017
 
 * Created By : Kiyor
 
@@ -86,18 +86,18 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	from := r.RemoteAddr.IP.String()
 
 	myGeoConfig.RLock()
-	if c, ok := myGeoConfig.Cache[CacheKey{fqdn, dest}]; ok {
+	if c, ok := myGeoConfig.cache[CacheKey{fqdn, dest}]; ok {
 		myGeoConfig.RUnlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-		log.Println(found, "Cache match", from, fqdn, dest, u, len(myGeoConfig.Cache))
+		log.Println(found, "Cache match", from, fqdn, dest, u, len(myGeoConfig.cache))
 		return proxyDialer(u.Addr, u.auth)
 	}
 	myGeoConfig.RUnlock()
 
 	if c, ok := myGeoConfig.MIP[dest]; ok {
 		myGeoConfig.Lock()
-		myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
+		myGeoConfig.cache[CacheKey{fqdn, dest}] = c
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
@@ -107,7 +107,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	for k, c := range myGeoConfig.MCIDR {
 		if subnettool.CIDRMatch(dest, k) {
 			myGeoConfig.Lock()
-			myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
+			myGeoConfig.cache[CacheKey{fqdn, dest}] = c
 			myGeoConfig.Unlock()
 			u := c.Upstream[0]
 			fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
@@ -117,7 +117,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	}
 	if c, ok := myGeoConfig.MFQDN[fqdn]; ok {
 		myGeoConfig.Lock()
-		myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
+		myGeoConfig.cache[CacheKey{fqdn, dest}] = c
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
@@ -127,7 +127,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	for k, c := range myGeoConfig.MREFQDN {
 		if glob.Glob(k, fqdn) {
 			myGeoConfig.Lock()
-			myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
+			myGeoConfig.cache[CacheKey{fqdn, dest}] = c
 			myGeoConfig.Unlock()
 			u := c.Upstream[0]
 			fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
@@ -144,7 +144,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	code := color.Sprintf("@{c}%s@{|}", strings.Join(codes, "-"))
 	if c, ok := myGeoConfig.MGEO[city.Country.IsoCode]; ok {
 		myGeoConfig.Lock()
-		myGeoConfig.Cache[CacheKey{fqdn, dest}] = c
+		myGeoConfig.cache[CacheKey{fqdn, dest}] = c
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
@@ -154,7 +154,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 
 	log.Println(notFound, "GEO", code, "use default", from, fqdn, dest)
 	myGeoConfig.Lock()
-	myGeoConfig.Cache[CacheKey{fqdn, dest}] = myGeoConfig.Default
+	myGeoConfig.cache[CacheKey{fqdn, dest}] = myGeoConfig.Default
 	myGeoConfig.Unlock()
 	return func(ctx context.Context, net_, addr string) (net.Conn, error) {
 		return net.Dial(net_, addr)

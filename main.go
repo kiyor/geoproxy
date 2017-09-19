@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Tue May 16 10:46:45 2017
+* Last Modified : Sun May 21 02:50:41 2017
 
 * Created By : Kiyor
 
@@ -29,9 +29,16 @@ var (
 	fConf   = flag.String("c", "./conf", "conf dir")
 )
 
-func main() {
+func init() {
 	flag.Parse()
+}
+
+func main() {
 	// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := Reload(*fConf)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGHUP)
