@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Tue 19 Sep 2017 11:49:37 AM UTC
+* Last Modified : Tue 19 Sep 2017 12:10:25 PM UTC
 
 * Created By : Kiyor
 
@@ -84,7 +84,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.RUnlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-		log.Println(found, "Cache match", from, fqdn, dest, u, len(myGeoConfig.cache))
+		log.Println(found, "Cache match", from, fqdn, dest, u.Addr, len(myGeoConfig.cache))
 		return proxyDialer(u.Addr, u.auth)
 	}
 	myGeoConfig.RUnlock()
@@ -95,7 +95,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-		log.Println(found, "IP match", from, fqdn, dest, u)
+		log.Println(found, "IP match", from, fqdn, dest, u.Addr)
 		return proxyDialer(u.Addr, u.auth)
 	}
 	for k, c := range myGeoConfig.MCIDR {
@@ -105,7 +105,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 			myGeoConfig.Unlock()
 			u := c.Upstream[0]
 			fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-			log.Println(found, "CIDR match", from, fqdn, dest, u)
+			log.Println(found, "CIDR match", from, fqdn, dest, u.Addr)
 			return proxyDialer(u.Addr, u.auth)
 		}
 	}
@@ -115,7 +115,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-		log.Println(found, "FQDN match", from, fqdn, dest, u)
+		log.Println(found, "FQDN match", from, fqdn, dest, u.Addr)
 		return proxyDialer(u.Addr, u.auth)
 	}
 	for k, c := range myGeoConfig.MREFQDN {
@@ -125,7 +125,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 			myGeoConfig.Unlock()
 			u := c.Upstream[0]
 			fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-			log.Println(found, "FQDN match", from, fqdn, dest, u)
+			log.Println(found, "FQDN match", from, fqdn, dest, u.Addr)
 			return proxyDialer(u.Addr, u.auth)
 		}
 	}
@@ -142,7 +142,7 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 		myGeoConfig.Unlock()
 		u := c.Upstream[0]
 		fqdn = color.Sprintf("@{y}%s@{|}", fqdn)
-		log.Println(found, "GEO match", from, fqdn, dest, code, u)
+		log.Println(found, "GEO match", from, fqdn, dest, code, u.Addr)
 		return proxyDialer(u.Addr, u.auth)
 	}
 

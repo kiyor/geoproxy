@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Mon May 15 15:26:52 2017
+* Last Modified : Tue 19 Sep 2017 12:14:38 PM UTC
 
 * Created By : Kiyor
 
@@ -24,19 +24,16 @@ import (
 )
 
 func parseSocks5Auth(input string) socks5.StaticCredentials {
-	if strings.Contains(input, " ") {
-		p := strings.Split(input, " ")
-		return socks5.StaticCredentials{
-			p[0]: p[1],
-		}
-	}
-	if strings.Contains(input, ":") {
-		p := strings.Split(input, ":")
-		return socks5.StaticCredentials{
-			p[0]: p[1],
-		}
-	}
 	cred := make(socks5.StaticCredentials)
+	for _, v := range []string{" ", ":"} {
+		if strings.Contains(input, v) {
+			p := strings.Split(input, v)
+			for i := 0; i < len(p); i += 2 {
+				cred[p[i]] = p[i+1]
+			}
+			return cred
+		}
+	}
 	d, err := ioutil.ReadFile(input)
 	if err != nil {
 		return socks5.StaticCredentials{}

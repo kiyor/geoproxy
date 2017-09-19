@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Tue 19 Sep 2017 11:51:46 AM UTC
+* Last Modified : Tue 19 Sep 2017 12:12:56 PM UTC
 
 * Created By : Kiyor
 
@@ -25,7 +25,7 @@ import (
 
 var (
 	fListen = flag.String("l", "127.0.0.1:1080", "listen interface")
-	fAuth   = flag.String("auth", "", "auth file.txt file.json or 'user:pass'")
+	fAuth   = flag.String("auth", "", "auth file.txt file.json or 'user:pass:user2:pass2'")
 	fConf   = flag.String("c", "./conf", "conf dir")
 )
 
