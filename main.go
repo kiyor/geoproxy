@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Sun May 21 02:50:41 2017
+* Last Modified : Tue 19 Sep 2017 11:51:46 AM UTC
 
 * Created By : Kiyor
 
@@ -64,6 +64,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	conf.Resolver = nil
 
 	// Create SOCKS5 proxy on localhost port 8000
 	if err := server.ListenAndServe("tcp", *fListen); err != nil {

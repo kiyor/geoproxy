@@ -6,7 +6,7 @@
 
 * Creation Date : 05-15-2017
 
-* Last Modified : Sun May 21 02:47:41 2017
+* Last Modified : Tue 19 Sep 2017 11:49:37 AM UTC
 
 * Created By : Kiyor
 
@@ -45,6 +45,7 @@ type Picker struct {
 }
 
 func proxyDialer(p string, auth *proxy.Auth) func(ctx context.Context, network, addr string) (net.Conn, error) {
+	// if it is not final proxy, ignore resolve
 	if len(p) > 0 {
 		dialer, err := proxy.SOCKS5("tcp", p,
 			auth,
@@ -56,14 +57,10 @@ func proxyDialer(p string, auth *proxy.Auth) func(ctx context.Context, network, 
 			log.Println(p, auth, err.Error())
 		}
 		return func(ctx context.Context, network, addr string) (net.Conn, error) {
-			if ip := net.ParseIP(addr); ip == nil {
-				s := strings.LastIndex(addr, ":")
-				i, _ := resolver.FetchOneString(addr[:s])
-				addr = i + addr[s:]
-			}
 			return dialer.Dial(network, addr)
 		}
 	}
+	// if it is final, anyway if still fqdn, do resolve
 	return func(ctx context.Context, network, addr string) (net.Conn, error) {
 		if ip := net.ParseIP(addr); ip == nil {
 			s := strings.LastIndex(addr, ":")
@@ -78,9 +75,6 @@ func (p *Picker) Pick(r *socks5.Request) func(ctx context.Context, network, addr
 	fqdn := r.DestAddr.FQDN
 	dest := r.RealDestAddr().IP.String()
 
-	// 	dialGen := func(proxy string) func(ctx context.Context, network, addr string) (net.Conn, error) {
-	// 		return net.Dial(network, addr)
-	// 	}
 	found := color.Sprint("@{g}HIT@{|}")
 	notFound := color.Sprint("@{r}MISS@{|}")
 	from := r.RemoteAddr.IP.String()
